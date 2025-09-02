@@ -1,66 +1,78 @@
-stages:
-  - test
-  - report
+stages: [test, deploy]
 
-variables:
-  ANDROID_HOME: '/sdk'
-  PATH: '$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools:$PATH'
+# Regras básicas: roda em push e MR
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
-cache:
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-    - node_modules/
+# Use "tags" porque vamos rodar num Runner local (Mac)
+.default_job_template: &defaults
+  stage: test
+  tags: ['mac'] # <-- importante: batizar seu runner com essa tag
+  before_script:
+    - node -v && npm -v
+    - npm ci || npm i
+    - mkdir -p errorShots
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - allure-results/
+      - allure-report/
+      - errorShots/
 
-before_script:
-  - npm ci
-
-# ===============================
-# ANDROID TESTS
-# ===============================
+# ANDROID
 android_tests:
-  stage: test
-  image: node:18
+  <<: *defaults
+  variables:
+    WDIO_LOG_LEVEL: silent
+  before_script:
+    - node -v && npm -v
+    - npm ci || npm i
+    - mkdir -p errorShots
+    # mata Appium na porta 4723, se tiver sobrado
+    - npx kill-port 4723 || true
+    # garante AVDs e sobe o emulador (troque o nome do AVD se for diferente)
+    - $ANDROID_HOME/emulator/emulator -list-avds
+    - $ANDROID_HOME/emulator/emulator -avd "$ANDROID_AVD" -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot &
+    - adb wait-for-device
+    - bash -lc 'until [[ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d "\r")" == "1" ]]; do echo "Aguardando boot do Android..."; sleep 2; done; adb shell input keyevent 82 || true'
   script:
-    - echo "🚀 Rodando testes Android"
-    - npx wdio wdio.android.conf.js
-  artifacts:
-    when: always
-    paths:
-      - allure-results/
-      - errorShots/
-    expire_in: 1 week
+    # Rode tudo ou só um spec com a var SPEC_PATTERN (opcional)
+    - if [[ -n "$SPEC_PATTERN" ]]; then npm run android -- --spec "$SPEC_PATTERN"; else npm run android; fi
+  after_script:
+    - npx allure generate --clean allure-results -o allure-report || true
 
-# ===============================
-# IOS TESTS
-# ===============================
+# IOS (precisa de Runner em macOS com Xcode/Simuladores)
 ios_tests:
-  stage: test
-  tags:
-    - macos
+  <<: *defaults
+  rules:
+    - if: $RUN_IOS == "1" # rode iOS quando quiser (variável)
+    - when: manual # ou manualmente nos pipelines
+  before_script:
+    - node -v && npm -v
+    - npm ci || npm i
+    - mkdir -p errorShots
+    - npx kill-port 4723 || true
+    - xcrun simctl list devices
+    # sobe o simulador (troque o nome se necessário)
+    - xcrun simctl boot "$IOS_SIM" || true
+    - xcrun simctl bootstatus "$IOS_SIM" -b
   script:
-    - echo "🚀 Rodando testes iOS"
-    - npx wdio wdio.ios.conf.js
-  artifacts:
-    when: always
-    paths:
-      - allure-results/
-      - errorShots/
-    expire_in: 1 week
+    - if [[ -n "$SPEC_PATTERN" ]]; then npm run ios -- --spec "$SPEC_PATTERN"; else npm run ios; fi
+  after_script:
+    - npx allure generate --clean allure-results -o allure-report || true
 
-# ===============================
-# GERAR RELATÓRIO ALLURE
-# ===============================
-generate_allure_report:
-  stage: report
-  image: node:18
-  needs:
-    - android_tests
-    - ios_tests
+# Publica o Allure no GitLab Pages
+pages:
+  stage: deploy
+  tags: ['mac']
+  needs: ['android_tests'] # adicione "ios_tests" se quiser depender dos dois
   script:
-    - echo "📊 Gerando Allure Report"
-    - npx allure generate allure-results --clean -o allure-report
+    - mkdir -p public
+    - if [[ -d "allure-report" ]]; then cp -r allure-report/* public/; else echo "Sem allure-report"; fi
   artifacts:
-    paths:
-      - allure-report
-    expire_in: 2 weeks
-  when: always
+    paths: [public]
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
