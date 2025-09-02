@@ -1,0 +1,31 @@
+# Relatórios Allure
+allure-results/
+allure-report/
+allure/
+
+# Screenshots/Evidências
+errorShots/
+screenshots/
+evidence/
+downloads/
+
+# Logs
+logs/
+*.log
+
+# Node modules
+node_modules/
+
+# Arquivos de ambiente
+.env
+.env.local
+
+# Arquivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Arquivos do OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,15 @@
+{
+  "valid": [{ "email": "user1@test.com", "password": "12345678" }],
+  "invalid": [
+    {
+      "email": "user2@test.com",
+      "password": "wrong%",
+      "message": "Invalid credentials"
+    },
+    {
+      "email": "user3@test.com",
+      "password": "xxxxxx",
+      "message": "User not found"
+    }
+  ]
+}

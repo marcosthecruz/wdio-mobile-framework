@@ -1,0 +1,66 @@
+stages:
+  - test
+  - report
+
+variables:
+  ANDROID_HOME: '/sdk'
+  PATH: '$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools:$PATH'
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+
+before_script:
+  - npm ci
+
+# ===============================
+# ANDROID TESTS
+# ===============================
+android_tests:
+  stage: test
+  image: node:18
+  script:
+    - echo "🚀 Rodando testes Android"
+    - npx wdio wdio.android.conf.js
+  artifacts:
+    when: always
+    paths:
+      - allure-results/
+      - errorShots/
+    expire_in: 1 week
+
+# ===============================
+# IOS TESTS
+# ===============================
+ios_tests:
+  stage: test
+  tags:
+    - macos
+  script:
+    - echo "🚀 Rodando testes iOS"
+    - npx wdio wdio.ios.conf.js
+  artifacts:
+    when: always
+    paths:
+      - allure-results/
+      - errorShots/
+    expire_in: 1 week
+
+# ===============================
+# GERAR RELATÓRIO ALLURE
+# ===============================
+generate_allure_report:
+  stage: report
+  image: node:18
+  needs:
+    - android_tests
+    - ios_tests
+  script:
+    - echo "📊 Gerando Allure Report"
+    - npx allure generate allure-results --clean -o allure-report
+  artifacts:
+    paths:
+      - allure-report
+    expire_in: 2 weeks
+  when: always
