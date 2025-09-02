@@ -6,7 +6,7 @@ workflow:
     - if: $CI_PIPELINE_SOURCE == "push"
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
-# Use "tags" porque vamos rodar num Runner local (Mac)
+# Use "tags" para rodar num Runner local (Mac)
 .default_job_template: &defaults
   stage: test
   tags: ['mac'] # <-- importante: batizar seu runner com essa tag
