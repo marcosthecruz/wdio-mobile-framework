@@ -135,6 +135,9 @@ exports.config = {
             outputDir: 'allure-results',
             disableWebdriverStepsReporting: true,
             disableWebdriverScreenshotsReporting: false,
+            useCucumberStepReporter: false,
+            addConsoleLogs: true, // ← CAPTURA LOGS
+            addEnvironmentInfo: true // ← INFO DO AMBIENTE
         }]
     ],
 
@@ -153,6 +156,15 @@ exports.config = {
     // it and to build services around it. You can either apply a single function or an array of
     // methods to it. If one of them returns with a promise, WebdriverIO will wait until that promise got
     // resolved to continue.
+    afterTest: async function (test, context, { error, result, duration, passed, retries }) {
+        if (error) {
+            await browser.takeScreenshot();
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const screenshotName = `error-${timestamp}.png`;
+            await browser.saveScreenshot(`./errorShots/${screenshotName}`);
+        }
+    },
+
     /**
      * Gets executed once before all workers get launched.
      * @param {object} config wdio configuration object
@@ -212,6 +224,9 @@ exports.config = {
      */
     // beforeSuite: function (suite) {
     // },
+    beforeSuite: async function () {
+        await browser.execute('console.log("=== Starting test suite ===")');
+    }
     /**
      * Function to be executed before a test (in Mocha/Jasmine) starts.
      */

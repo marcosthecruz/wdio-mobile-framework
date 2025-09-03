@@ -5,7 +5,6 @@ describe('Preenchimento de formulários', () => {
     it('deve preencher e enviar formulário', async () => {
         await Menu.irParaForms();
         await Forms.preencherFormulario('Teste automação');
-        // await expect(await Forms.msgResult).toHaveTextContaining('This app is awesome');
         await Forms.msgResult.isDisplayed();
     });
 });

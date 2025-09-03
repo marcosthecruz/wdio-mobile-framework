@@ -4,50 +4,71 @@ class FormsScreen {
     get dropdown() { return $('~Dropdown'); }
     get btnActive() { return $('~button-Active'); }
     get msgResult() { return $('~message'); }
+    get iosDoneBtn() { return $('~Done'); }
+    get iosPickerWheel() { return $('-ios class chain:**/XCUIElementTypePickerWheel'); }
+    get androidAwesomeItem() {
+        return $('//android.widget.CheckedTextView[@text="webdriver.io is awesome"]');
+    }
+
 
     async preencherFormulario(texto) {
         await this.inputField.setValue(texto);
         await this.switchButton.click();
         await this.dropdown.click();
-        // await $('//android.widget.CheckedTextView[@text="This app is awesome"]').click();
-        // await this.swipeUpIOS();
         await this.selectAwesomeApp();
         await this.btnActive.click();
     }
 
-    // async selectAwesomeApp() {
-    //     if (driver.isAndroid) {
-    //         await $('//android.widget.CheckedTextView[@text="This app is awesome"]').click();
-    //     } else {
-    //         // Para iOS - usando accessibility id ou outro seletor
-    //         // await $('~This app is awesome').click();
-    //         await $('-ios predicate string:value == "This app is awesome" AND type == "XCUIElementTypePickerWheel"').click();
-    //         // ou usando XPath para iOS
-    //         // await $('//XCUIElementTypeStaticText[@name="This app is awesome"]').click();
-    //     }
-    // }
-
-
     async selectAwesomeApp() {
+        const target = 'webdriver.io is awesome';
+
         if (driver.isAndroid) {
-            await $('//android.widget.CheckedTextView[@text="webdriver.io is awesome"]').click();
-        } else {
-            // Para iOS - usando accessibility id ou outro seletor
-            // await $('~This app is awesome').click();
-            // await $('-ios predicate string:value == "webdriver.io is awesome" AND type == "XCUIElementTypePickerWheel"').click();
-            // ou usando XPath para iOS
-            // await $('//XCUIElementTypeStaticText[@name="This app is awesome"]').click();
+            await this.androidAwesomeItem.waitForDisplayed({ timeout: 10000 });
+            await this.androidAwesomeItem.click();
+            return;
+        }
+
+        // ----- iOS -----
+        const wheel = await this.iosPickerWheel;
+        await wheel.waitForDisplayed({ timeout: 10000 });
+
+        try {
+            await wheel.setValue(target);
+        } catch (_) {
+            // Fallback: gira a roda até achar o valor usando mobile:selectPickerWheelValue
+            // Tenta 10 passos pra frente; se não achar, 10 pra trás.
+            const trySelect = async (order, steps = 10) => {
+                for (let i = 0; i < steps; i++) {
+                    const val = (await wheel.getAttribute('value')) || '';
+                    if (val.toLowerCase().includes('awesome')) return true;
+                    await driver.execute('mobile: selectPickerWheelValue', {
+                        element: wheel.elementId,
+                        order,         // 'next' | 'previous'
+                        offset: 0.15   // quão “forte” gira a roda
+                    });
+                }
+                return (await wheel.getAttribute('value') || '').toLowerCase().includes('awesome');
+            };
+
+            if (!(await trySelect('next'))) {
+                await trySelect('previous');
+            }
+        }
+
+        let done = this.iosDoneBtn;
+        if (!(await done.isDisplayed().catch(() => false))) {
+            done = await $('-ios predicate string:name == "Done" OR label == "Done" OR name CONTAINS "Done"');
+        }
+        if (await done.isDisplayed().catch(() => false)) {
+            await done.click();
         }
     }
 
     async validarMensagemSucesso() {
-        // waitForDisplayed ainda funciona, mas retorna boolean
-        const formScreen = await $('~Forms-screen'); // id da tela de forms
+        const formScreen = await $('~Forms-screen');
         const isDisplayed = await this.formScreen.waitForDisplayed({
             timeout: 15000
         });
-
-        // Então você pode fazer a asserção
         await expect(isDisplayed).toBe(true);
     }
 
@@ -60,23 +81,3 @@ class FormsScreen {
 
 }
 module.exports = new FormsScreen();
-
-
-
-// const Base = require('./base.screen');
-
-// class FormScreen extends Base {
-
-
-//     async validarMensagemSucesso() {
-//         // waitForDisplayed ainda funciona, mas retorna boolean
-//         const formScreen = await $('~Forms-screen'); // id da tela de forms
-//         const isDisplayed = await this.formScreen.waitForDisplayed({
-//             timeout: 15000
-//         });
-
-//         // Então você pode fazer a asserção
-//         await expect(isDisplayed).toBe(true);
-//     }
-// }
-// module.exports = new FormScreen();
