@@ -23,8 +23,8 @@ workflow:
       # - allure-report/
       - errorShots/
       # - wdio.log
-    reports:
-      junit: allure-results/*.xml # se usar JUnit também
+    # reports:
+    # junit: allure-results/*.xml # se usar JUnit também
 
 # ANDROID
 android_tests:
