@@ -80,17 +80,16 @@ generate_allure_report:
     paths:
       - allure-report/
     expire_in: 30 days
-
 # Publica o Allure no GitLab Pages
-pages:
-  stage: deploy
-  tags: ['mac']
-  needs: ['generate_allure_report'] # adicione "ios_tests" se quiser depender dos dois
-  script:
-    - mkdir -p public
-    - cp -r allure-report/* public/
-    # - if [[ -d "allure-report" ]]; then cp -r allure-report/* public/; else echo "Sem allure-report"; fi
-  artifacts:
-    paths: [public]
-  rules:
-    - if: $CI_COMMIT_BRANCH == "main"
+# pages:
+#   stage: deploy
+#   tags: ['mac']
+#   needs: ['generate_allure_report'] # adicione "ios_tests" se quiser depender dos dois
+#   script:
+#     - mkdir -p public
+#     - cp -r allure-report/* public/
+#     # - if [[ -d "allure-report" ]]; then cp -r allure-report/* public/; else echo "Sem allure-report"; fi
+#   artifacts:
+#     paths: [public]
+#   rules:
+#     - if: $CI_COMMIT_BRANCH == "main"
