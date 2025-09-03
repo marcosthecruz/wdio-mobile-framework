@@ -12,6 +12,8 @@ workflow:
     - node -v && npm -v
     - npm ci || npm i
     - mkdir -p allure-results errorShots
+    - rm -rf allure-results allure-report # <- Retirar se falha
+    - mkdir -p allure-results errorShots # <- Retirar se falha
   artifacts:
     when: always
     expire_in: 7 days

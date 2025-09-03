@@ -1,9 +1,0 @@
-stages:
-  - test
-
-job_test_runner:
-  stage: test
-  script:
-    - echo "Runner funcionando! 🚀"
-    - node -v
-    - npm -v

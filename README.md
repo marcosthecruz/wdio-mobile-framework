@@ -101,7 +101,7 @@ npm run android
 iOS
 npm run ios
 
-🎯 Executar um Teste Específico
+## 🎯 Executar um Teste Específico
 
 É possível rodar apenas um arquivo de teste usando --spec:
 
@@ -120,6 +120,7 @@ Para gerar o relatório manualmente:
 
 npx allure generate --clean allure-results -o allure-report
 npx allure open allure-report
+npm rum allure:serve
 
 ## 🔄 CI/CD com GitLab
 

@@ -9,7 +9,6 @@ class LoginScreen extends Base {
       ? $('//android.widget.TextView[@text="Please enter at least 8 characters"]')
       : $('~Please enter at least 8 characters');
   }
-
   get msgSuccess() {
     return driver.isAndroid
       ? $('id:android:id/alertTitle')
