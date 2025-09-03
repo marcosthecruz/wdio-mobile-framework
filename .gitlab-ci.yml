@@ -22,7 +22,7 @@ workflow:
       - allure-results/
       - allure-report/
       - errorShots/
-      - wdio.log
+      # - wdio.log
     reports:
       junit: allure-results/*.xml # se usar JUnit também
 
