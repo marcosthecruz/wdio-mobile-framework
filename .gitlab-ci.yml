@@ -20,7 +20,7 @@ workflow:
     expire_in: 7 days
     paths:
       - allure-results/
-      - allure-report/
+      # - allure-report/
       - errorShots/
       # - wdio.log
     reports:
