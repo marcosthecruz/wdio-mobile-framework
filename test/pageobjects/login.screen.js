@@ -4,6 +4,11 @@ class LoginScreen extends Base {
   get inputPassword() { return $('~input-password'); }
   get btnLogin() { return $('~button-LOGIN'); }
   get msgError() { return $('~login-error'); }
+  get passError() {
+    return driver.isAndroid
+      ? $('//android.widget.TextView[@text="Please enter at least 8 characters"]')
+      : $('~Please enter at least 8 characters');
+  }
   // get msgSuccess() { return $('id:android:id/alertTitle'); }
   get msgSuccess() {
     return driver.isAndroid

@@ -1,5 +1,5 @@
 const Menu = require('../pageobjects/menu.screen');
-const Form = require('../pageobjects/form.scren');
+const Form = require('../pageobjects/forms.screen');
 
 describe('Navegação entre telas', () => {
     it('deve navegar até Forms e voltar para Home', async () => {
