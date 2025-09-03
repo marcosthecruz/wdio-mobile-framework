@@ -1,4 +1,4 @@
-stages: [test, deploy]
+stages: [test, deploy, report]
 
 # Regras básicas: roda em push e MR
 workflow:
