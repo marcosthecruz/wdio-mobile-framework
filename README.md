@@ -93,6 +93,10 @@ Appium instalado globalmente:
 
 npm install -g appium
 
+## 🤖 Startando Appium Server
+
+appium --allow-cors --base-path /wd/hub --port 4723
+
 ## ▶️ Como Executar
 
 Android
@@ -116,10 +120,13 @@ npx wdio wdio.ios.conf.js --spec ./test/specs/02.signup.spec.js
 ## 📊 Relatórios
 
 Após a execução, os resultados ficam em allure-results/.
+
 Para gerar o relatório manualmente:
 
 npx allure generate --clean allure-results -o allure-report
+
 npx allure open allure-report
+
 npm rum allure:serve
 
 ## 🔄 CI/CD com GitLab
