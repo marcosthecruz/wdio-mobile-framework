@@ -117,6 +117,10 @@ npx wdio wdio.android.conf.js --spec ./test/specs/02.signup.spec.js
 
 npx wdio wdio.ios.conf.js --spec ./test/specs/02.signup.spec.js
 
+## gitLab
+
+git push gitlab main
+
 ## 📊 Relatórios
 
 Após a execução, os resultados ficam em allure-results/.
